@@ -15,7 +15,7 @@ export const createOrUpdateUser = async (req, res) => {
   
       if (existingUser) {
         console.log("Updating existing user:", existingUser);
-        existingUser.score += score;
+        existingUser.score = score;
         await existingUser.save();
         return res.json({ message: "Score updated", user: existingUser });
       }
