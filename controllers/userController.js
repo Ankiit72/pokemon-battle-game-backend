@@ -2,31 +2,34 @@ import User from '../models/User.js';
 
 
 export const createOrUpdateUser = async (req, res) => {
-  const { name, score } = req.body;
-
-  if (!name || score == null) {
-    return res.status(400).json({ error: 'Name and score are required' });
-  }
-
-  try {
-
-    const existingUser = await User.findOne({ name });
-
-    if (existingUser) {
-
-      existingUser.score += score;
-      await existingUser.save();
-      return res.json({ message: 'Score updated', user: existingUser });
+    console.log("Received request body:", req.body);  
+  
+    const { name, score } = req.body;
+    if (!name || score == null) {
+      console.log("Validation failed: Missing name or score");  
+      return res.status(400).json({ error: "Name and score are required" });
     }
-
-
-    const newUser = new User({ name, score });
-    await newUser.save();
-    res.status(201).json({ message: 'User created', user: newUser });
-  } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
+  
+    try {
+      const existingUser = await User.findOne({ name });
+  
+      if (existingUser) {
+        console.log("Updating existing user:", existingUser);
+        existingUser.score += score;
+        await existingUser.save();
+        return res.json({ message: "Score updated", user: existingUser });
+      }
+  
+      console.log("Creating new user");
+      const newUser = new User({ name, score });
+      await newUser.save();
+      res.status(201).json({ message: "User created", user: newUser });
+  
+    } catch (error) {
+      console.error(" MongoDB Error:", error);  
+      res.status(500).json({ error: "Internal Server Error", details: error.message });
+    }
+  };
 
 
 export const getUsers = async (req, res) => {
